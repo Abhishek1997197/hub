@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Hub</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background-color: black; }
+        
+        #popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+            text-align: center;
+            z-index: 9999;
+            border-radius: 15px;
+            display: none;
+        }
+        #popup button {
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: blue;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #container {
+            width: 100%;
+            height: 100vh;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="popup">
+        <p>Ads are our only source of revenue. Visit one website and enjoy a full day of ad-free movies!</p>
+        <button id="visitAd">Continue</button>
+    </div>
+
+    <div id="container">
+        <iframe id="movieFrame" src="http://localhost:3000/movixo"></iframe>
+    </div>
+
+    <script>
+        const AD_URL = "https://www.healthline.com/health/best-healthy-living-blogs#1";
+
+        function getUserIP(callback) {
+            fetch('https://api64.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => callback(data.ip));
+        }
+
+        function showPopup() {
+            document.getElementById('popup').style.display = 'block';
+        }
+
+        function hidePopup() {
+            document.getElementById('popup').style.display = 'none';
+        }
+
+        getUserIP(function(ip) {
+            let lastVisit = localStorage.getItem("popup_shown_" + ip);
+            let today = new Date().toDateString();
+
+            if (lastVisit !== today) {
+                setTimeout(() => {
+                    showPopup();
+                }, 5000); // Show popup after 5 seconds
+            }
+        });
+
+        document.getElementById('visitAd').addEventListener('click', function() {
+            getUserIP(function(ip) {
+                localStorage.setItem("popup_shown_" + ip, new Date().toDateString());
+            });
+
+            hidePopup();
+            document.getElementById("movieFrame").src = AD_URL;
+
+            setTimeout(() => {
+                document.getElementById("movieFrame").src = "http://localhost:3000/movixo";
+            }, 30000);
+        });
+    </script>
+</body>
+</html>
